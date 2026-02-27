@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +13,16 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    if (!process.env.RESEND_API_KEY) {
+      console.log("Waitlist signup (no Resend key):", email);
+      return NextResponse.json(
+        { message: "Successfully subscribed!" },
+        { status: 200 }
+      );
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.contacts.create({
       email: email,
